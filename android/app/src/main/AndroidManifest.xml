@@ -1,7 +1,7 @@
 <manifest 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.jgeek00.adguard_home_manager">
+    package="com.tuankhaiit.adguard_home_manager">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove"  />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"

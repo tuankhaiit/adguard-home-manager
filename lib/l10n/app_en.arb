@@ -248,7 +248,7 @@
     "disable": "Disable",
     "enable": "Enable",
     "currentStatus": "Current status",
-    "listDataUpdated": "List data updated successfull",
+    "listDataUpdated": "List data updated successfully",
     "listDataNotUpdated": "Couldn't update list data",
     "updatingListData": "Updating list data...",
     "editWhitelist": "Edit white list",
