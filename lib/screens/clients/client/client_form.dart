@@ -105,7 +105,7 @@ class ClientForm extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: TextFormField(
-            enabled: client != null ? false : true,
+            // enabled: client != null ? false : true,
             controller: nameController,
             onChanged: (_) => {},
             decoration: InputDecoration(

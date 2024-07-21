@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:adguard_home_manager/config/logger.dart';
 import 'package:adguard_home_manager/models/server.dart';
 
 enum ExceptionType { socket, timeout, handshake, http, unknown }
@@ -44,6 +45,7 @@ class HttpRequestClient {
         Duration(seconds: timeout)
       );
       String reply = await response.transform(utf8.decoder).join();
+      logger.d("HTTP GET => $connectionString \nRESPONSE => $reply");
       httpClient.close();
       return HttpResponse(
         successful: response.statusCode >= 400 ? false : true, 

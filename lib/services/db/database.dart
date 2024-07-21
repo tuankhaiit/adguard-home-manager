@@ -1,5 +1,8 @@
 import 'package:sqflite/sqflite.dart';
 
+import '../../functions/base64.dart';
+import '../../widgets/add_server/add_server_modal.dart';
+
 Future<Map<String, dynamic>> loadDb() async {
   List<Map<String, Object?>>? servers;
 
@@ -25,6 +28,25 @@ Future<Map<String, dynamic>> loadDb() async {
             )
         """
       );
+      await db.transaction((txn) async {
+        await txn.insert(
+            'servers',
+            {
+              'id' : '0',
+              'name' : 'Home',
+              'connectionMethod' : ConnectionType.http.name,
+              'domain' : 'home.net',
+              'path' : null,
+              'port' : 85,
+              'user' : 'admin',
+              'password' : 'Tuankhai@0811',
+              'defaultServer' : 1,
+              'authToken' : encodeBase64UserPass('admin', 'Tuankhai@0811'),
+              'runningOnHa' : 0
+            }
+        );
+        return null;
+      });
     },
     onOpen: (Database db) async {
       await db.transaction((txn) async{

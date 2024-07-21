@@ -71,6 +71,7 @@ dependencies:
   url_launcher: ^6.2.4
   shared_preferences: ^2.2.2
   window_manager: ^0.3.8
+  logger: ^2.4.0
 
 dev_dependencies:
   flutter_test:

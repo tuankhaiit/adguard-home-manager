@@ -73,6 +73,10 @@ class _AddedListState extends State<AddedList> {
 
     final width = MediaQuery.of(context).size.width;
 
+    refreshData() async {
+      await clientsProvider.fetchClients(updateLoading: true);
+    }
+
     void confirmEditClient(Client client) async {
       ProcessModal processModal = ProcessModal();
       processModal.open(AppLocalizations.of(context)!.savingChanges);
@@ -87,6 +91,7 @@ class _AddedListState extends State<AddedList> {
           label: AppLocalizations.of(context)!.clientUpdatedSuccessfully, 
           color: Colors.green
         );
+        refreshData();
       }
       else {
         showSnacbkar(
@@ -114,6 +119,7 @@ class _AddedListState extends State<AddedList> {
           label: AppLocalizations.of(context)!.clientDeletedSuccessfully, 
           color: Colors.green
         );
+        refreshData();
       }
       else {
         showSnacbkar(
@@ -233,7 +239,7 @@ class _AddedListState extends State<AddedList> {
       loadStatus: statusProvider.loadStatus == LoadStatus.loading || clientsProvider.loadStatus == LoadStatus.loading
         ? LoadStatus.loading
         : clientsProvider.loadStatus, 
-      onRefresh: () => clientsProvider.fetchClients(updateLoading: false),
+      onRefresh: refreshData,
       fab: const ClientsFab(),
       fabVisible: isVisible,
     );

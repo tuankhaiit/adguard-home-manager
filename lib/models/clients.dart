@@ -76,6 +76,7 @@ class WhoisInfo {
 }
 
 class Client {
+  final String identity;
   final String name;
   final List<String> blockedServices;
   final List<String> ids;
@@ -94,6 +95,7 @@ class Client {
   final BlockedServicesSchedule? blockedServicesSchedule;
 
   Client({
+    required this.identity,
     required this.name,
     required this.blockedServices,
     required this.ids,
@@ -113,6 +115,7 @@ class Client {
   });
 
   factory Client.fromJson(Map<String, dynamic> json) => Client(
+    identity: json["name"],
     name: json["name"],
     blockedServices: json["blocked_services"] != null ? List<String>.from(json["blocked_services"]) : [],
     ids: json["ids"] != null ? List<String>.from(json["ids"].map((x) => x)) : [],

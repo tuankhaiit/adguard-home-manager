@@ -142,6 +142,8 @@
     "elapsedTime": "Elapsed time",
     "responseCode": "Response code",
     "client": "Client",
+    "device": "Device",
+    "devices": "Devices",
     "deviceIp": "IP address",
     "deviceName": "Name",
     "logDetails": "Log details",

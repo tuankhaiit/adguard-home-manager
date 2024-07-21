@@ -18,7 +18,7 @@ class ClientInitialData {
     required this.name,
     required this.ip,
   });
-}  
+}
 
 class ControllerListItem {
   final String id;
@@ -54,7 +54,7 @@ class _ClientScreenState extends State<ClientScreen> {
   final _scrollController = ScrollController();
 
   final Uuid uuid = const Uuid();
-  
+
   bool validValues = false;
 
   TextEditingController nameController = TextEditingController();
@@ -93,7 +93,7 @@ class _ClientScreenState extends State<ClientScreen> {
   bool _enableDnsCache = false;
   final _dnsCacheField = TextEditingController();
   String? _dnsCacheError;
-  
+
   BlockedServicesSchedule _blockedServicesSchedule = BlockedServicesSchedule();
 
   // VALIDATIONS
@@ -105,7 +105,7 @@ class _ClientScreenState extends State<ClientScreen> {
     if (useGlobalSettingsFiltering == true) {
       setState(() {
         useGlobalSettingsFiltering = false;
-          
+
         enableFiltering = false;
         enableSafeBrowsing = false;
         enableParentalControl = false;
@@ -116,7 +116,7 @@ class _ClientScreenState extends State<ClientScreen> {
     else if (useGlobalSettingsFiltering == false) {
       setState(() {
         useGlobalSettingsFiltering = true;
-         
+
         enableFiltering = null;
         enableSafeBrowsing = null;
         enableParentalControl = null;
@@ -134,7 +134,7 @@ class _ClientScreenState extends State<ClientScreen> {
       nameController.text = widget.client!.name;
       selectedTags = widget.client!.tags;
       identifiersControllers = widget.client!.ids.map((e) => ControllerListItem(
-        id: uuid.v4(), 
+        id: uuid.v4(),
         controller: TextEditingController(text: e)
       )).toList();
       useGlobalSettingsFiltering = widget.client!.useGlobalSettings;
@@ -145,7 +145,7 @@ class _ClientScreenState extends State<ClientScreen> {
       useGlobalSettingsServices = widget.client!.useGlobalBlockedServices;
       blockedServices = widget.client!.blockedServices;
       upstreamServers = widget.client!.upstreams.map((e) => ControllerListItem(
-        id: uuid.v4(), 
+        id: uuid.v4(),
         controller: TextEditingController(text: e)
       )).toList();
       _ignoreClientQueryLog = widget.client!.ignoreQuerylog ?? false;
@@ -161,29 +161,30 @@ class _ClientScreenState extends State<ClientScreen> {
     if (widget.initialData != null) {
       nameController.text = widget.initialData!.name;
       identifiersControllers[0] = ControllerListItem(
-        id: uuid.v4(), 
+        id: uuid.v4(),
         controller: TextEditingController(text: widget.initialData!.ip)
       );
     }
     super.initState();
   }
-    
+
   @override
   Widget build(BuildContext context) {
     final clientsProvider = Provider.of<ClientsProvider>(context);
 
     void createClient() {
       final Client client = Client(
-        name: nameController.text, 
-        ids: List<String>.from(identifiersControllers.map((e) => e.controller.text)), 
-        useGlobalSettings: useGlobalSettingsFiltering, 
-        filteringEnabled: enableFiltering ?? false, 
-        parentalEnabled: enableParentalControl ?? false, 
-        safebrowsingEnabled: enableSafeBrowsing ?? false, 
+        identity: widget.client?.identity ?? "",
+        name: nameController.text,
+        ids: List<String>.from(identifiersControllers.map((e) => e.controller.text)),
+        useGlobalSettings: useGlobalSettingsFiltering,
+        filteringEnabled: enableFiltering ?? false,
+        parentalEnabled: enableParentalControl ?? false,
+        safebrowsingEnabled: enableSafeBrowsing ?? false,
         safeSearch: safeSearch,
-        useGlobalBlockedServices: useGlobalSettingsServices, 
-        blockedServices: blockedServices, 
-        upstreams: List<String>.from(upstreamServers.map((e) => e.controller.text)), 
+        useGlobalBlockedServices: useGlobalSettingsServices,
+        blockedServices: blockedServices,
+        upstreams: List<String>.from(upstreamServers.map((e) => e.controller.text)),
         tags: selectedTags,
         ignoreQuerylog: _ignoreClientQueryLog,
         ignoreStatistics: _ignoreClientStatistics,
@@ -206,7 +207,7 @@ class _ClientScreenState extends State<ClientScreen> {
       }
       else {
         _scrollController.animateTo(
-          0, 
+          0,
           curve: Curves.easeOut,
           duration: const Duration(milliseconds: 500)
         );
@@ -225,7 +226,7 @@ class _ClientScreenState extends State<ClientScreen> {
           onPressed: () => openDeleteClientScreen(
             context: context,
             onDelete: () => clientsProvider.deleteClient(widget.client!),
-          ), 
+          ),
           icon: const Icon(Icons.delete_rounded),
           tooltip: AppLocalizations.of(context)!.delete,
         ),
@@ -250,14 +251,14 @@ class _ClientScreenState extends State<ClientScreen> {
                   icon: const Icon(Icons.close)
                 ),
                 title: Text(
-                  widget.client != null 
+                  widget.client != null
                     ? AppLocalizations.of(context)!.client
                     : AppLocalizations.of(context)!.addClient
                 ),
                 actions: actions(),
               )
             )
-          ], 
+          ],
           body: SafeArea(
             top: false,
             bottom: false,
@@ -270,37 +271,37 @@ class _ClientScreenState extends State<ClientScreen> {
                   SliverList.list(
                     children: [
                       if (!_nameValid || !_identifiersValid || !_dnsCacheValid) _Errors(
-                        nameValid: _nameValid, 
-                        identifiersValid: _identifiersValid, 
+                        nameValid: _nameValid,
+                        identifiersValid: _identifiersValid,
                         dnsCacheValid: _dnsCacheValid
                       ),
                       ClientForm(
                         isFullScreen: true,
-                        client: widget.client, 
+                        client: widget.client,
                         nameController: nameController,
-                        identifiersControllers: identifiersControllers, 
-                        selectedTags: selectedTags, 
-                        useGlobalSettingsFiltering: useGlobalSettingsFiltering, 
-                        enableFiltering: enableFiltering, 
-                        enableParentalControl: enableParentalControl, 
-                        enableSafeBrowsing: enableSafeBrowsing, 
-                        enableSafeSearch: enableSafeSearch, 
-                        safeSearch: safeSearch, 
-                        blockedServices: blockedServices, 
-                        updateBlockedServices: (v) => setState(() => blockedServices = v), 
-                        upstreamServers: upstreamServers, 
-                        updateUpstreamServers: (v) => setState(() => upstreamServers = v), 
-                        defaultSafeSearch: defaultSafeSearch, 
-                        useGlobalSettingsServices: useGlobalSettingsServices, 
+                        identifiersControllers: identifiersControllers,
+                        selectedTags: selectedTags,
+                        useGlobalSettingsFiltering: useGlobalSettingsFiltering,
+                        enableFiltering: enableFiltering,
+                        enableParentalControl: enableParentalControl,
+                        enableSafeBrowsing: enableSafeBrowsing,
+                        enableSafeSearch: enableSafeSearch,
+                        safeSearch: safeSearch,
+                        blockedServices: blockedServices,
+                        updateBlockedServices: (v) => setState(() => blockedServices = v),
+                        upstreamServers: upstreamServers,
+                        updateUpstreamServers: (v) => setState(() => upstreamServers = v),
+                        defaultSafeSearch: defaultSafeSearch,
+                        useGlobalSettingsServices: useGlobalSettingsServices,
                         updateSelectedTags: (v) => setState(() => selectedTags = v),
-                        updateIdentifiersControllers: (v) => setState(() => identifiersControllers = v), 
-                        enableDisableGlobalSettingsFiltering: enableDisableGlobalSettingsFiltering, 
-                        updateEnableFiltering: (v) => setState(() => enableFiltering = v), 
-                        updateEnableParentalControl: (v) => setState(() => enableParentalControl = v), 
-                        updateEnableSafeBrowsing: (v) => setState(() => enableSafeBrowsing = v), 
-                        updateEnableSafeSearch: (v) => setState(() => enableSafeSearch = v), 
-                        updateSafeSearch: (v) => setState(() => safeSearch = v), 
-                        updateUseGlobalSettingsServices: (v) => setState(() => useGlobalSettingsServices = v), 
+                        updateIdentifiersControllers: (v) => setState(() => identifiersControllers = v),
+                        enableDisableGlobalSettingsFiltering: enableDisableGlobalSettingsFiltering,
+                        updateEnableFiltering: (v) => setState(() => enableFiltering = v),
+                        updateEnableParentalControl: (v) => setState(() => enableParentalControl = v),
+                        updateEnableSafeBrowsing: (v) => setState(() => enableSafeBrowsing = v),
+                        updateEnableSafeSearch: (v) => setState(() => enableSafeSearch = v),
+                        updateSafeSearch: (v) => setState(() => safeSearch = v),
+                        updateUseGlobalSettingsServices: (v) => setState(() => useGlobalSettingsServices = v),
                         ignoreClientQueryLog: _ignoreClientQueryLog,
                         ignoreClientStatistics: _ignoreClientStatistics,
                         updateIgnoreClientQueryLog: (v) => setState(() => _ignoreClientQueryLog = v),
@@ -321,7 +322,7 @@ class _ClientScreenState extends State<ClientScreen> {
           )
         ),
       );
-    } 
+    }
     else {
       return Dialog(
         child: ConstrainedBox(
@@ -340,7 +341,7 @@ class _ClientScreenState extends State<ClientScreen> {
                         CloseButton(onPressed: () => Navigator.pop(context)),
                         const SizedBox(width: 8),
                         Text(
-                          widget.client != null 
+                          widget.client != null
                             ? AppLocalizations.of(context)!.client
                             : AppLocalizations.of(context)!.addClient,
                           style: const TextStyle(
@@ -360,37 +361,37 @@ class _ClientScreenState extends State<ClientScreen> {
                   controller: _scrollController,
                   children: [
                     if (!_nameValid || !_identifiersValid || !_dnsCacheValid) _Errors(
-                      nameValid: _nameValid, 
-                      identifiersValid: _identifiersValid, 
+                      nameValid: _nameValid,
+                      identifiersValid: _identifiersValid,
                       dnsCacheValid: _dnsCacheValid
                     ),
                     ClientForm(
                       isFullScreen: false,
-                      client: widget.client, 
+                      client: widget.client,
                       nameController: nameController,
-                      identifiersControllers: identifiersControllers, 
-                      selectedTags: selectedTags, 
-                      useGlobalSettingsFiltering: useGlobalSettingsFiltering, 
-                      enableFiltering: enableFiltering, 
-                      enableParentalControl: enableParentalControl, 
-                      enableSafeBrowsing: enableSafeBrowsing, 
-                      enableSafeSearch: enableSafeSearch, 
-                      safeSearch: safeSearch, 
-                      blockedServices: blockedServices, 
-                      updateBlockedServices: (v) => setState(() => blockedServices = v), 
-                      upstreamServers: upstreamServers, 
-                      updateUpstreamServers: (v) => setState(() => upstreamServers = v), 
-                      defaultSafeSearch: defaultSafeSearch, 
-                      useGlobalSettingsServices: useGlobalSettingsServices, 
+                      identifiersControllers: identifiersControllers,
+                      selectedTags: selectedTags,
+                      useGlobalSettingsFiltering: useGlobalSettingsFiltering,
+                      enableFiltering: enableFiltering,
+                      enableParentalControl: enableParentalControl,
+                      enableSafeBrowsing: enableSafeBrowsing,
+                      enableSafeSearch: enableSafeSearch,
+                      safeSearch: safeSearch,
+                      blockedServices: blockedServices,
+                      updateBlockedServices: (v) => setState(() => blockedServices = v),
+                      upstreamServers: upstreamServers,
+                      updateUpstreamServers: (v) => setState(() => upstreamServers = v),
+                      defaultSafeSearch: defaultSafeSearch,
+                      useGlobalSettingsServices: useGlobalSettingsServices,
                       updateSelectedTags: (v) => setState(() => selectedTags = v),
-                      updateIdentifiersControllers: (v) => setState(() => identifiersControllers = v), 
-                      enableDisableGlobalSettingsFiltering: enableDisableGlobalSettingsFiltering, 
-                      updateEnableFiltering: (v) => setState(() => enableFiltering = v), 
-                      updateEnableParentalControl: (v) => setState(() => enableParentalControl = v), 
-                      updateEnableSafeBrowsing: (v) => setState(() => enableSafeBrowsing = v), 
-                      updateEnableSafeSearch: (v) => setState(() => enableSafeSearch = v), 
-                      updateSafeSearch: (v) => setState(() => safeSearch = v), 
-                      updateUseGlobalSettingsServices: (v) => setState(() => useGlobalSettingsServices = v), 
+                      updateIdentifiersControllers: (v) => setState(() => identifiersControllers = v),
+                      enableDisableGlobalSettingsFiltering: enableDisableGlobalSettingsFiltering,
+                      updateEnableFiltering: (v) => setState(() => enableFiltering = v),
+                      updateEnableParentalControl: (v) => setState(() => enableParentalControl = v),
+                      updateEnableSafeBrowsing: (v) => setState(() => enableSafeBrowsing = v),
+                      updateEnableSafeSearch: (v) => setState(() => enableSafeSearch = v),
+                      updateSafeSearch: (v) => setState(() => safeSearch = v),
+                      updateUseGlobalSettingsServices: (v) => setState(() => useGlobalSettingsServices = v),
                       ignoreClientQueryLog: _ignoreClientQueryLog,
                       ignoreClientStatistics: _ignoreClientStatistics,
                       updateIgnoreClientQueryLog: (v) => setState(() => _ignoreClientQueryLog = v),
@@ -399,7 +400,7 @@ class _ClientScreenState extends State<ClientScreen> {
                       updateEnableDnsCache: (v) => setState(() => _enableDnsCache = v),
                       dnsCacheField: _dnsCacheField,
                       dnsCacheError: _dnsCacheError,
-                      updateDnsCacheError: (v) => setState(() => _dnsCacheError = v), 
+                      updateDnsCacheError: (v) => setState(() => _dnsCacheError = v),
                       blockedServicesSchedule: _blockedServicesSchedule,
                       setBlockedServicesSchedule: (v) => setState(() => _blockedServicesSchedule = v),
                     ),

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:adguard_home_manager/functions/safety_check_null.dart';
 import 'package:flutter/material.dart';
 import 'package:async/async.dart';
 import 'package:provider/provider.dart';
@@ -58,18 +59,18 @@ class _LogsListClientState extends State<LogsListClient> {
     String? searchText,
   }) async {
     final serversProvider = Provider.of<ServersProvider>(context, listen: false);
-    
+
     int offst = inOffset ?? offset;
 
     if (loadingMore != null && loadingMore == true) {
       setState(() => isLoadingMore = true);
     }
 
-    if (cancelableRequest != null) cancelableRequest!.cancel(); 
+    if (cancelableRequest != null) cancelableRequest!.cancel();
 
     cancelableRequest = CancelableOperation.fromFuture(
       serversProvider.apiClient2!.getLogs(
-        count: logsQuantity, 
+        count: logsQuantity,
         offset: offst,
         search: '"${widget.ip}"'
       )
@@ -146,14 +147,14 @@ class _LogsListClientState extends State<LogsListClient> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.client,
+                      widget.name != null ? widget.name! : AppLocalizations.of(context)!.client,
                       style: const TextStyle(
                         fontSize: 24
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      widget.name != null && widget.name != '' ? widget.name! : widget.ip,
+                      widget.ip,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -163,13 +164,13 @@ class _LogsListClientState extends State<LogsListClient> {
                   ],
                 ),
               ),
-              surfaceTintColor: isDesktop(MediaQuery.of(context).size.width) 
-                ? Colors.transparent 
+              surfaceTintColor: isDesktop(MediaQuery.of(context).size.width)
+                ? Colors.transparent
                 : null,
               actions: [
                 if (!(Platform.isAndroid || Platform.isIOS)) ...[
                   IconButton(
-                    onPressed: fetchLogs, 
+                    onPressed: fetchLogs,
                     icon: const Icon(Icons.refresh_rounded),
                     tooltip: AppLocalizations.of(context)!.refresh,
                   ),
@@ -178,7 +179,7 @@ class _LogsListClientState extends State<LogsListClient> {
               ],
             )
           )
-        ], 
+        ],
         body: SafeArea(
           top: false,
           bottom: false,
@@ -213,7 +214,7 @@ class _LogsListClientState extends State<LogsListClient> {
                     )
                   ),
                   if (loadStatus == 1 && logsData!.data.isNotEmpty) SliverList.builder(
-                    itemCount: isLoadingMore == true 
+                    itemCount: isLoadingMore == true
                       ? logsData!.data.length+1
                       : logsData!.data.length,
                     itemBuilder: (context, index) {
@@ -234,9 +235,9 @@ class _LogsListClientState extends State<LogsListClient> {
                           onLogTap: (log) => {
                             if (width > 700) {
                               showDialog(
-                                context: context, 
+                                context: context,
                                 builder: (context) => LogDetailsScreen(
-                                  log: log, 
+                                  log: log,
                                   dialog: true
                                 )
                               )
@@ -245,7 +246,7 @@ class _LogsListClientState extends State<LogsListClient> {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) => LogDetailsScreen(
-                                    log: log, 
+                                    log: log,
                                     dialog: false
                                   )
                                 )

@@ -88,7 +88,8 @@ class _ClientsListsState extends State<ClientsLists> with TickerProviderStateMix
     void onClientSelected(Client client) {
       setState(() => _selectedClient = client);
       final w = LogsListClient(
-        ip: client.ids[0], 
+        ip: client.ids[0],
+        name: client.name,
         serversProvider: serversProvider, 
         appConfigProvider: appConfigProvider,
         splitView: widget.splitView,
@@ -192,7 +193,7 @@ class _ClientsListsState extends State<ClientsLists> with TickerProviderStateMix
                         children: [
                           const Icon(Icons.devices),
                           const SizedBox(width: 8),
-                          Text(AppLocalizations.of(context)!.activeClients)
+                          Text(AppLocalizations.of(context)!.devices)
                         ],
                       ),
                     ),
@@ -200,12 +201,12 @@ class _ClientsListsState extends State<ClientsLists> with TickerProviderStateMix
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.add_rounded),
+                          const Icon(Icons.devices_other),
                           const SizedBox(width: 8),
-                          Text(AppLocalizations.of(context)!.added)
+                          Text(AppLocalizations.of(context)!.others)
                         ],
                       ),
-                    ),
+                    )
                   ]
                 )
               ),
@@ -215,21 +216,21 @@ class _ClientsListsState extends State<ClientsLists> with TickerProviderStateMix
         body: TabBarView(
           controller: tabController,
           children: [
+            AddedList(
+              scrollController: scrollController,
+              data: clientsProvider.loadStatus == LoadStatus.loaded
+                  ? clientsProvider.filteredAddedClients : [],
+              onClientSelected: onClientSelected,
+              selectedClient: _selectedClient,
+              splitView: widget.splitView,
+            ),
             ClientsList(
               data: clientsProvider.loadStatus == LoadStatus.loaded
                 ? clientsProvider.filteredActiveClients : [],
               onClientSelected: onAutoClientSelected,
               selectedClient: _selectedAutoClient,
               splitView: widget.splitView,
-            ),
-            AddedList(
-              scrollController: scrollController,
-              data: clientsProvider.loadStatus == LoadStatus.loaded
-                ? clientsProvider.filteredAddedClients : [], 
-              onClientSelected: onClientSelected,
-              selectedClient: _selectedClient,
-              splitView: widget.splitView,
-            ),
+            )
           ]
         )
       )

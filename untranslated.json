@@ -1,6 +1,13 @@
 {
+  "es": [
+    "device",
+    "devices"
+  ],
+
   "pl": [
     "editConnection",
+    "device",
+    "devices",
     "savingList",
     "hideServerAddress",
     "hideServerAddressDescription",
@@ -145,6 +152,8 @@
   ],
 
   "ru": [
+    "device",
+    "devices",
     "malwarePhishing",
     "logsSettingsDescription",
     "ignoredDomains",
@@ -218,6 +227,8 @@
   ],
 
   "tr": [
+    "device",
+    "devices",
     "clientIpCopied",
     "clientNameCopied",
     "dnsServerAddressCopied",
@@ -226,6 +237,8 @@
 
   "zh": [
     "editConnection",
+    "device",
+    "devices",
     "savingList",
     "clientIpCopied",
     "clientNameCopied",
@@ -235,6 +248,8 @@
 
   "zh_CN": [
     "editConnection",
+    "device",
+    "devices",
     "savingList",
     "clientIpCopied",
     "clientNameCopied",

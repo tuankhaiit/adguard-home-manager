@@ -138,7 +138,7 @@ class ClientsProvider with ChangeNotifier {
   Future<bool> editClient(Client client) async {      
     final result = await _serversProvider!.apiClient2!.postUpdateClient(
       data: {
-        'name': client.name,
+        'name': client.identity,
         'data': removePropFromMap(client.toJson(), 'safe_search')
       }
     );
