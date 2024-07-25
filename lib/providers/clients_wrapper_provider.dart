@@ -24,9 +24,6 @@ class ClientsWrapperProvider with ChangeNotifier {
   }
 
   Future<List<Log?>> getLogsByClients(List<Client> clients) async {
-    final Iterable<Future<Log?>> futures = clients.map((client) => _logsProvider.fetchLatestLogByClient(client));
-    List<Log?> logs = [];
-    futures.forEach((future) async => logs.add(await future));
-    return logs;
+    return Future.wait(clients.map((client) => _logsProvider.fetchLatestLogByClient(client)));
   }
 }
