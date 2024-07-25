@@ -93,6 +93,7 @@ class Client {
   final bool? upstreamsCacheEnabled;
   final int? upstreamsCacheSize;
   final BlockedServicesSchedule? blockedServicesSchedule;
+  DateTime? latestAccessTime;
 
   Client({
     required this.identity,

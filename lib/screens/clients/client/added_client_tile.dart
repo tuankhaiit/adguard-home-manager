@@ -1,3 +1,4 @@
+import 'package:adguard_home_manager/functions/format_time.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -49,9 +50,9 @@ class _AddedClientTileState extends State<AddedClientTile> {
             options: (_) => [
               MenuOption(
                 icon: Icons.copy_rounded,
-                title: AppLocalizations.of(context)!.copyClipboard, 
+                title: AppLocalizations.of(context)!.copyClipboard,
                 action: () => copyToClipboard(
-                  value: widget.client.ids.toString().replaceAll(RegExp(r'^\[|\]$'), ''), 
+                  value: widget.client.ids.toString().replaceAll(RegExp(r'^\[|\]$'), ''),
                   successMessage: AppLocalizations.of(context)!.copiedClipboard,
                 )
               ),
@@ -65,7 +66,7 @@ class _AddedClientTileState extends State<AddedClientTile> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(28),
-                  color: widget.client == widget.selectedClient 
+                  color: widget.client == widget.selectedClient
                     ? Theme.of(context).colorScheme.primaryContainer
                     : null
                 ),
@@ -103,7 +104,7 @@ class _AddedClientTileState extends State<AddedClientTile> {
                                     Icon(
                                       Icons.filter_list_rounded,
                                       size: 19,
-                                      color: widget.client.filteringEnabled == true 
+                                      color: widget.client.filteringEnabled == true
                                         ? appConfigProvider.useThemeColorForStatus == true
                                           ? Theme.of(context).colorScheme.primary
                                           : Colors.green
@@ -115,7 +116,7 @@ class _AddedClientTileState extends State<AddedClientTile> {
                                     Icon(
                                       Icons.vpn_lock_rounded,
                                       size: 18,
-                                      color: widget.client.safebrowsingEnabled == true 
+                                      color: widget.client.safebrowsingEnabled == true
                                         ? appConfigProvider.useThemeColorForStatus == true
                                           ? Theme.of(context).colorScheme.primary
                                           : Colors.green
@@ -127,7 +128,7 @@ class _AddedClientTileState extends State<AddedClientTile> {
                                     Icon(
                                       Icons.block,
                                       size: 18,
-                                      color: widget.client.parentalEnabled == true 
+                                      color: widget.client.parentalEnabled == true
                                         ? appConfigProvider.useThemeColorForStatus == true
                                           ? Theme.of(context).colorScheme.primary
                                           : Colors.green
@@ -139,7 +140,7 @@ class _AddedClientTileState extends State<AddedClientTile> {
                                     Icon(
                                       Icons.search_rounded,
                                       size: 19,
-                                      color: widget.client.safeSearch != null && widget.client.safeSearch!.enabled == true 
+                                      color: widget.client.safeSearch != null && widget.client.safeSearch!.enabled == true
                                         ? appConfigProvider.useThemeColorForStatus == true
                                           ? Theme.of(context).colorScheme.primary
                                           : Colors.green
@@ -158,7 +159,7 @@ class _AddedClientTileState extends State<AddedClientTile> {
                     if (widget.onEdit != null && _isHover == true) ...[
                       const SizedBox(width: 8),
                       IconButton(
-                        onPressed: () => widget.onEdit!(widget.client), 
+                        onPressed: () => widget.onEdit!(widget.client),
                         icon: const Icon(Icons.file_open_rounded),
                         tooltip: AppLocalizations.of(context)!.seeDetails,
                       )
@@ -181,9 +182,9 @@ class _AddedClientTileState extends State<AddedClientTile> {
           ),
           MenuOption(
             icon: Icons.copy_rounded,
-            title: AppLocalizations.of(context)!.copyClipboard, 
+            title: AppLocalizations.of(context)!.copyClipboard,
             action: () => copyToClipboard(
-              value: widget.client.ids.toString().replaceAll(RegExp(r'^\[|\]$'), ''), 
+              value: widget.client.ids.toString().replaceAll(RegExp(r'^\[|\]$'), ''),
               successMessage: AppLocalizations.of(context)!.copiedClipboard,
             )
           ),
@@ -206,7 +207,7 @@ class _AddedClientTileState extends State<AddedClientTile> {
                   Icon(
                     Icons.filter_list_rounded,
                     size: 19,
-                    color: widget.client.filteringEnabled == true 
+                    color: widget.client.filteringEnabled == true
                       ? appConfigProvider.useThemeColorForStatus == true
                         ? Theme.of(context).colorScheme.primary
                         : Colors.green
@@ -218,7 +219,7 @@ class _AddedClientTileState extends State<AddedClientTile> {
                   Icon(
                     Icons.vpn_lock_rounded,
                     size: 18,
-                    color: widget.client.safebrowsingEnabled == true 
+                    color: widget.client.safebrowsingEnabled == true
                       ? appConfigProvider.useThemeColorForStatus == true
                         ? Theme.of(context).colorScheme.primary
                         : Colors.green
@@ -230,7 +231,7 @@ class _AddedClientTileState extends State<AddedClientTile> {
                   Icon(
                     Icons.block,
                     size: 18,
-                    color: widget.client.parentalEnabled == true 
+                    color: widget.client.parentalEnabled == true
                       ? appConfigProvider.useThemeColorForStatus == true
                         ? Theme.of(context).colorScheme.primary
                         : Colors.green
@@ -242,18 +243,38 @@ class _AddedClientTileState extends State<AddedClientTile> {
                   Icon(
                     Icons.search_rounded,
                     size: 19,
-                    color: widget.client.safeSearch != null && widget.client.safeSearch!.enabled == true 
+                    color: widget.client.safeSearch != null && widget.client.safeSearch!.enabled == true
                       ? appConfigProvider.useThemeColorForStatus == true
                         ? Theme.of(context).colorScheme.primary
                         : Colors.green
                       : appConfigProvider.useThemeColorForStatus == true
                         ? Colors.grey
                         : Colors.red
-                  )
+                  ),
                 ],
               )
             ],
           ),
+          trailing: Row(
+            children: [
+              Icon(
+                Icons.schedule_rounded,
+                size: 16,
+                color: Theme.of(context).listTileTheme.textColor,
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                child: Text(
+                  convertTimestampLocalTimezone(widget.client.latestAccessTime, 'HH:mm:ss'),
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      color: Theme.of(context).listTileTheme.textColor,
+                      fontSize: 13
+                  ),
+                ),
+              )
+            ],
+          )
         ),
       );
     }

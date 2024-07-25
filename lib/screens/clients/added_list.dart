@@ -44,6 +44,7 @@ class AddedList extends StatefulWidget {
 
 class _AddedListState extends State<AddedList> {
   late bool isVisible;
+  late ConnectionState state;
 
   @override
   initState(){
@@ -68,11 +69,10 @@ class _AddedListState extends State<AddedList> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(future: widget.data, builder: (context, snapshot) {
+      state = snapshot.connectionState;
       if (snapshot.hasData) {
-        logger.d('AddedList: snapshot.requireData: ${snapshot.requireData}');
         return _buildBody(context, snapshot.requireData);
       } else {
-        logger.d('AddedList: snapshot.connectionState: ${snapshot.connectionState}');
         return const Center(child: CircularProgressIndicator());
       }
     });
@@ -248,7 +248,7 @@ class _AddedListState extends State<AddedList> {
           ],
         ),
       ),
-      loadStatus: statusProvider.loadStatus == LoadStatus.loading || clientsProvider.loadStatus == LoadStatus.loading
+      loadStatus: statusProvider.loadStatus == LoadStatus.loading || state != ConnectionState.done
           ? LoadStatus.loading
           : clientsProvider.loadStatus,
       onRefresh: refreshData,

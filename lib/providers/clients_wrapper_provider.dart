@@ -1,8 +1,9 @@
+import 'dart:collection';
+
 import 'package:adguard_home_manager/models/clients.dart';
 import 'package:adguard_home_manager/models/logs.dart';
 import 'package:flutter/foundation.dart';
 
-import '../config/logger.dart';
 import 'logs_provider.dart';
 
 class ClientsWrapperProvider with ChangeNotifier {
@@ -12,14 +13,23 @@ class ClientsWrapperProvider with ChangeNotifier {
 
   Future<List<Client>> sortClients(List<Client> clients) async {
     final List<Client> sortedClients = List.of(clients);
-    logger.d('Clients ${clients.length}');
     final List<Log?> logs = await getLogsByClients(clients);
-    logger.d('Logs ${logs.length}');
-    sortedClients.sort((client1, client2) =>
-        logs.indexWhere((log) => client1.ids.first == log?.client)
-            .compareTo(logs.indexWhere((log) => client2.ids.first == log?.client))
-    );
-    logger.d('Sorted clients ${sortedClients.length}');
+    final HashMap<String, DateTime> clientAccessTimeMap = HashMap();
+    logs.where((log) => log != null).forEach((log) => clientAccessTimeMap.putIfAbsent(log!.client, () => log.time));
+    // Append latest access time
+    for (var client in sortedClients) {
+      client.latestAccessTime = clientAccessTimeMap[client.ids.first];
+    }
+    // Sort by access time
+    sortedClients.sort((client1, client2) {
+      if (client1.latestAccessTime == null) {
+        return 1;
+      } else if (client2.latestAccessTime == null) {
+        return -1;
+      } else {
+        return client2.latestAccessTime!.compareTo(client1.latestAccessTime!);
+      }
+    });
     return sortedClients;
   }
 

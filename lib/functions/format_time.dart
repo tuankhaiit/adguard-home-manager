@@ -6,8 +6,8 @@ String formatTimestamp(DateTime timestamp, String format) {
   return f.format(timestamp);
 }
 
-String convertTimestampLocalTimezone(DateTime timestamp, String format) {
-  return DateFormat(format).format(timestamp.toLocal());
+String convertTimestampLocalTimezone(DateTime? timestamp, String format) {
+  return timestamp != null ? DateFormat(format).format(timestamp.toLocal()) : '';
 }
 
 String formatTimeOfDay(TimeOfDay timestamp, String format) {
