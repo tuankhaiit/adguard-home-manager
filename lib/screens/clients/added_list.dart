@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:adguard_home_manager/config/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/rendering.dart';
@@ -23,7 +24,7 @@ import 'package:adguard_home_manager/providers/app_config_provider.dart';
 
 class AddedList extends StatefulWidget {
   final ScrollController scrollController;
-  final List<Client> data;
+  final Future<List<Client>> data;
   final void Function(Client) onClientSelected;
   final Client? selectedClient;
   final bool splitView;
@@ -47,14 +48,13 @@ class _AddedListState extends State<AddedList> {
   @override
   initState(){
     super.initState();
-
     isVisible = true;
     widget.scrollController.addListener(() {
       if (widget.scrollController.position.userScrollDirection == ScrollDirection.reverse) {
         if (mounted && isVisible == true) {
           setState(() => isVisible = false);
         }
-      } 
+      }
       else {
         if (widget.scrollController.position.userScrollDirection == ScrollDirection.forward) {
           if (mounted && isVisible == false) {
@@ -67,6 +67,18 @@ class _AddedListState extends State<AddedList> {
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder(future: widget.data, builder: (context, snapshot) {
+      if (snapshot.hasData) {
+        logger.d('AddedList: snapshot.requireData: ${snapshot.requireData}');
+        return _buildBody(context, snapshot.requireData);
+      } else {
+        logger.d('AddedList: snapshot.connectionState: ${snapshot.connectionState}');
+        return const Center(child: CircularProgressIndicator());
+      }
+    });
+  }
+
+  Widget _buildBody(BuildContext context, List<Client> clients) {
     final statusProvider = Provider.of<StatusProvider>(context);
     final clientsProvider = Provider.of<ClientsProvider>(context);
     final appConfigProvider = Provider.of<AppConfigProvider>(context);
@@ -80,24 +92,24 @@ class _AddedListState extends State<AddedList> {
     void confirmEditClient(Client client) async {
       ProcessModal processModal = ProcessModal();
       processModal.open(AppLocalizations.of(context)!.savingChanges);
-      
+
       final result = await clientsProvider.editClient(client);
 
       processModal.close();
 
       if (result == true) {
         showSnacbkar(
-          appConfigProvider: appConfigProvider,
-          label: AppLocalizations.of(context)!.clientUpdatedSuccessfully, 
-          color: Colors.green
+            appConfigProvider: appConfigProvider,
+            label: AppLocalizations.of(context)!.clientUpdatedSuccessfully,
+            color: Colors.green
         );
         refreshData();
       }
       else {
         showSnacbkar(
-          appConfigProvider: appConfigProvider,
-          label: AppLocalizations.of(context)!.clientNotUpdated, 
-          color: Colors.red
+            appConfigProvider: appConfigProvider,
+            label: AppLocalizations.of(context)!.clientNotUpdated,
+            color: Colors.red
         );
       }
     }
@@ -105,9 +117,9 @@ class _AddedListState extends State<AddedList> {
     void deleteClient(Client client) async {
       ProcessModal processModal = ProcessModal();
       processModal.open(AppLocalizations.of(context)!.removingClient);
-      
+
       final result = await clientsProvider.deleteClient(client);
-    
+
       processModal.close();
 
       if (result == true) {
@@ -115,49 +127,49 @@ class _AddedListState extends State<AddedList> {
           Navigator.of(clientsNavigatorKey.currentContext!).popUntil((route) => false);
         }
         showSnacbkar(
-          appConfigProvider: appConfigProvider,
-          label: AppLocalizations.of(context)!.clientDeletedSuccessfully, 
-          color: Colors.green
+            appConfigProvider: appConfigProvider,
+            label: AppLocalizations.of(context)!.clientDeletedSuccessfully,
+            color: Colors.green
         );
         refreshData();
       }
       else {
         showSnacbkar(
-          appConfigProvider: appConfigProvider,
-          label: AppLocalizations.of(context)!.clientNotDeleted, 
-          color: Colors.red
+            appConfigProvider: appConfigProvider,
+            label: AppLocalizations.of(context)!.clientNotDeleted,
+            color: Colors.red
         );
       }
-    }  
+    }
 
     void openClientModal(Client client) {
       openClientFormModal(
-        context: context, 
-        width: width, 
-        client: client,
-        onConfirm: confirmEditClient,
-        onDelete: deleteClient
+          context: context,
+          width: width,
+          client: client,
+          onConfirm: confirmEditClient,
+          onDelete: deleteClient
       );
     }
 
     void openDeleteModal(Client client) {
       showModal(
-        context: context, 
-        builder: (ctx) => RemoveClientModal(
-          onConfirm: () => deleteClient(client)
-        )
+          context: context,
+          builder: (ctx) => RemoveClientModal(
+              onConfirm: () => deleteClient(client)
+          )
       );
     }
     final clientsDisplay = clientsProvider.searchTermClients != null && clientsProvider.searchTermClients != ""
-      ? widget.data.where(
-          (c) => c.name.toLowerCase().contains(clientsProvider.searchTermClients.toString()) || c.ids.where((id) => id.contains(clientsProvider.searchTermClients.toString())).isNotEmpty
-        ).toList()
-      : widget.data;
+        ? clients.where(
+            (c) => c.name.toLowerCase().contains(clientsProvider.searchTermClients.toString()) || c.ids.where((id) => id.contains(clientsProvider.searchTermClients.toString())).isNotEmpty
+    ).toList()
+        : clients;
 
     return CustomTabContentList(
-      listPadding: widget.splitView == true 
-        ? const EdgeInsets.only(top: 8)
-        : null,
+      listPadding: widget.splitView == true
+          ? const EdgeInsets.only(top: 8)
+          : null,
       loadingGenerator: () => SizedBox(
         width: double.maxFinite,
         child: Column(
@@ -176,15 +188,15 @@ class _AddedListState extends State<AddedList> {
             )
           ],
         ),
-      ), 
+      ),
       itemsCount: clientsDisplay.length,
       contentWidget: (index) => AddedClientTile(
         selectedClient: widget.selectedClient,
-        client: clientsDisplay[index], 
+        client: clientsDisplay[index],
         onTap: widget.onClientSelected,
         onEdit: statusProvider.serverStatus != null
-          ? (c) => openClientModal(c)
-          : null,
+            ? (c) => openClientModal(c)
+            : null,
         onDelete: openDeleteModal,
         splitView: widget.splitView,
       ),
@@ -207,12 +219,12 @@ class _AddedListState extends State<AddedList> {
             const SizedBox(height: 30),
             TextButton.icon(
               onPressed: () => clientsProvider.fetchClients(updateLoading: true),
-              icon: const Icon(Icons.refresh_rounded), 
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(AppLocalizations.of(context)!.refresh),
             )
           ],
         ),
-      ), 
+      ),
       errorGenerator: () => SizedBox(
         width: double.maxFinite,
         child: Column(
@@ -235,10 +247,10 @@ class _AddedListState extends State<AddedList> {
             )
           ],
         ),
-      ), 
+      ),
       loadStatus: statusProvider.loadStatus == LoadStatus.loading || clientsProvider.loadStatus == LoadStatus.loading
-        ? LoadStatus.loading
-        : clientsProvider.loadStatus, 
+          ? LoadStatus.loading
+          : clientsProvider.loadStatus,
       onRefresh: refreshData,
       fab: const ClientsFab(),
       fabVisible: isVisible,

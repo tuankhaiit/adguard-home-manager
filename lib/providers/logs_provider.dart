@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-
-import 'package:adguard_home_manager/providers/servers_provider.dart';
+import 'package:adguard_home_manager/config/logger.dart';
 import 'package:adguard_home_manager/constants/enums.dart';
 import 'package:adguard_home_manager/models/applied_filters.dart';
 import 'package:adguard_home_manager/models/clients.dart';
 import 'package:adguard_home_manager/models/logs.dart';
+import 'package:adguard_home_manager/providers/servers_provider.dart';
+import 'package:flutter/material.dart';
 
 class LogsProvider with ChangeNotifier {
   ServersProvider? _serversProvider;
@@ -27,11 +27,8 @@ class LogsProvider with ChangeNotifier {
 
   bool _isLoadingMore = false;
 
-  AppliedFiters _appliedFilters = AppliedFiters(
-    selectedResultStatus: 'all', 
-    searchText: null,
-    clients: []
-  );
+  AppliedFiters _appliedFilters =
+      AppliedFiters(selectedResultStatus: 'all', searchText: null, clients: []);
 
   LoadStatus get loadStatus {
     return _loadStatus;
@@ -56,7 +53,7 @@ class LogsProvider with ChangeNotifier {
   String? get searchText {
     return _searchText;
   }
-  
+
   int get logsQuantity {
     return _logsQuantity;
   }
@@ -91,7 +88,7 @@ class LogsProvider with ChangeNotifier {
     _clients = clients;
     notifyListeners();
   }
- 
+
   void setLogsOlderThan(DateTime? value) {
     _logsOlderThan = value;
     notifyListeners();
@@ -102,6 +99,7 @@ class LogsProvider with ChangeNotifier {
     _offset = 0;
     _selectedResultStatus = 'all';
     _searchText = null;
+    _selectedClients = [];
     notifyListeners();
   }
 
@@ -114,10 +112,7 @@ class LogsProvider with ChangeNotifier {
     _offset = value;
   }
 
-  void setSelectedResultStatus({
-    required String value,
-    bool? refetch
-  }) {
+  void setSelectedResultStatus({required String value, bool? refetch}) {
     _selectedResultStatus = value;
     notifyListeners();
     if (refetch = true) {
@@ -144,6 +139,24 @@ class LogsProvider with ChangeNotifier {
     _isLoadingMore = status;
   }
 
+  Future<Log?> fetchLatestLogByClient(Client client) async {
+    final result = await _serversProvider!.apiClient2!.getLogs(
+        count: 1,
+        offset: 0,
+        olderThan: null,
+        responseStatus: null,
+        search: '"${client.ids.first}"');
+    if (result.successful == true) {
+      // logger.d("Client ${client.identity} has logs");
+      final LogsData logsData = result.content;
+      if (logsData.data.isNotEmpty) {
+        return logsData.data.first;
+      }
+    }
+    // logger.d("Client ${client.identity} has no logs");
+    return null;
+  }
+
   Future<bool> fetchLogs({
     int? inOffset,
     bool? loadingMore,
@@ -160,12 +173,11 @@ class LogsProvider with ChangeNotifier {
     }
 
     final result = await _serversProvider!.apiClient2!.getLogs(
-      count: logsQuantity, 
-      offset: offst,
-      olderThan: logsOlderThan,
-      responseStatus: resStatus,
-      search: _searchText
-    );
+        count: logsQuantity,
+        offset: offst,
+        olderThan: logsOlderThan,
+        responseStatus: resStatus,
+        search: _searchText);
 
     if (loadingMore != null && loadingMore == true) {
       _isLoadingMore = false;
@@ -173,31 +185,33 @@ class LogsProvider with ChangeNotifier {
     }
 
     if (result.successful == true) {
-      _offset = inOffset != null ? inOffset+logsQuantity : offset+logsQuantity;
+      _offset =
+          inOffset != null ? inOffset + logsQuantity : offset + logsQuantity;
       if (loadingMore != null && loadingMore == true && logsData != null) {
         LogsData newLogsData = result.content;
-        newLogsData.data = [...logsData!.data, ...(result.content as LogsData).data];
+        newLogsData.data = [
+          ...logsData!.data,
+          ...(result.content as LogsData).data
+        ];
         if (appliedFilters.clients.isNotEmpty) {
-          newLogsData.data = newLogsData.data.where(
-            (item) => appliedFilters.clients.contains(item.client)
-          ).toList();
+          newLogsData.data = newLogsData.data
+              .where((item) => appliedFilters.clients.contains(item.client))
+              .toList();
         }
         _logsData = newLogsData;
-      }
-      else {
+      } else {
         LogsData newLogsData = result.content;
         if (appliedFilters.clients.isNotEmpty) {
-          newLogsData.data = newLogsData.data.where(
-            (item) => appliedFilters.clients.contains(item.client)
-          ).toList();
+          newLogsData.data = newLogsData.data
+              .where((item) => appliedFilters.clients.contains(item.client))
+              .toList();
         }
         _logsData = newLogsData;
       }
       _loadStatus = LoadStatus.loaded;
       notifyListeners();
       return true;
-    }
-    else {
+    } else {
       _loadStatus = LoadStatus.error;
       notifyListeners();
       return false;
@@ -210,23 +224,18 @@ class LogsProvider with ChangeNotifier {
 
     resetFilters();
 
-    final result = await _serversProvider!.apiClient2!.getLogs(
-      count: logsQuantity
-    );
+    final result =
+        await _serversProvider!.apiClient2!.getLogs(count: logsQuantity);
 
     _appliedFilters = AppliedFiters(
-      selectedResultStatus: 'all', 
-      searchText: null,
-      clients: []
-    );
+        selectedResultStatus: 'all', searchText: null, clients: []);
 
     if (result.successful == true) {
       _logsData = result.content as LogsData;
       _loadStatus = LoadStatus.loaded;
       notifyListeners();
       return true;
-    }
-    else {
+    } else {
       _loadStatus = LoadStatus.error;
       notifyListeners();
       return false;
@@ -247,24 +256,23 @@ class LogsProvider with ChangeNotifier {
     );
 
     _appliedFilters = AppliedFiters(
-      selectedResultStatus: selectedResultStatus,
-      searchText: searchText,
-      clients: selectedClients
-    );
+        selectedResultStatus: selectedResultStatus,
+        searchText: searchText,
+        clients: [] //selectedClients
+        );
 
     if (result.successful == true) {
       LogsData newLogsData = result.content as LogsData;
       if (appliedFilters.clients.isNotEmpty) {
-        newLogsData.data = newLogsData.data.where(
-          (item) => appliedFilters.clients.contains(item.client)
-        ).toList();
+        newLogsData.data = newLogsData.data
+            .where((item) => appliedFilters.clients.contains(item.client))
+            .toList();
       }
       _logsData = newLogsData;
       _loadStatus = LoadStatus.loaded;
       notifyListeners();
       return true;
-    }
-    else {
+    } else {
       _loadStatus = LoadStatus.error;
       notifyListeners();
       return false;

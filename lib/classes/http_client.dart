@@ -45,7 +45,7 @@ class HttpRequestClient {
         Duration(seconds: timeout)
       );
       String reply = await response.transform(utf8.decoder).join();
-      logger.d("HTTP GET => $connectionString \nRESPONSE => $reply");
+      // logger.d("HTTP GET => $connectionString \nRESPONSE => $reply");
       httpClient.close();
       return HttpResponse(
         successful: response.statusCode >= 400 ? false : true, 

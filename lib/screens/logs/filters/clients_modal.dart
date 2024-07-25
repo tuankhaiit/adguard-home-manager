@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:segmented_button_slide/segmented_button_slide.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import 'package:adguard_home_manager/widgets/custom_checkbox_list_tile.dart';
 import 'package:adguard_home_manager/functions/is_ip.dart';
 import 'package:adguard_home_manager/widgets/list_bottom_sheet.dart';
 import 'package:adguard_home_manager/widgets/custom_list_tile.dart';
@@ -49,16 +48,17 @@ class _ClientsModalState extends State<ClientsModal> {
   void initState() {
     final clientsProvider = Provider.of<ClientsProvider>(context, listen: false);
     final statusProvider = Provider.of<StatusProvider>(context, listen: false);
-    _filteredClients = clientsProvider.clients!.autoClients.map((e) {
+    _filteredClients = clientsProvider.clients!.clients.map((e) {
       String? name;
       try {
-        name = statusProvider.serverStatus!.clients.firstWhere((c) => c.ids.contains(e.ip)).name;
+        name = statusProvider.serverStatus!.clients.firstWhere((c) => c.ids.contains(e.ids[0])).name;
       } catch (e) {
         // ---- //
       }
       return _ClientLog(
-        ip: e.ip, 
-        name: name
+          ip: e.ids[0],
+          name: name,
+          ids: e.ids
       );
     }).toList();
 
@@ -72,7 +72,7 @@ class _ClientsModalState extends State<ClientsModal> {
     final statusProvider = Provider.of<StatusProvider>(context);
 
     void onSearch({required String value, int? selectedList}) {
-      if ((selectedList ?? _selectedList) == 1) {
+      if ((selectedList ?? _selectedList) == 0) {
         final filtered = clientsProvider.clients!.clients.map((e) {
           String? name;
           try {
@@ -114,9 +114,11 @@ class _ClientsModalState extends State<ClientsModal> {
     }
 
     void searchAddedClient(_ClientLog client) {
-      final notIps = client.ids?.where((e) => isIpAddress(e) == false).toList();
-      if (notIps == null) return;
-      logsProvider.setSearchText('"${notIps[0]}"');
+      final ips = client.ids?.where((e) => isIpAddress(e) == true).toList();
+      if (ips == null || ips.isEmpty) return;
+      final ip = ips[0];
+      logsProvider.setSearchText('"$ip"');
+      logsProvider.setSelectedClients([ip]);
       Navigator.of(context).pop();
     }
 
@@ -154,30 +156,30 @@ class _ClientsModalState extends State<ClientsModal> {
                       onClear: () => setState(() => _searchController.text = ""), 
                       onSearch: (v) => onSearch(value: v)
                     ),
-                    Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.info_rounded,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                            const SizedBox(width: 16),
-                            Flexible(
-                              child: Text(AppLocalizations.of(context)!.selectClientsFiltersInfo)
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
+                    // Card(
+                    //   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.all(16),
+                    //     child: Row(
+                    //       children: [
+                    //         Icon(
+                    //           Icons.info_rounded,
+                    //           color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    //         ),
+                    //         const SizedBox(width: 16),
+                    //         Flexible(
+                    //           child: Text(AppLocalizations.of(context)!.selectClientsFiltersInfo)
+                    //         )
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: SegmentedButtonSlide(
                         entries: [
-                          SegmentedButtonSlideEntry(icon: Icons.devices, label: AppLocalizations.of(context)!.activeClients),
-                          SegmentedButtonSlideEntry(icon: Icons.add_rounded, label: AppLocalizations.of(context)!.added),
+                          SegmentedButtonSlideEntry(icon: Icons.devices, label: AppLocalizations.of(context)!.devices),
+                          SegmentedButtonSlideEntry(icon: Icons.devices_other, label: AppLocalizations.of(context)!.others),
                         ], 
                         selectedEntry: _selectedList, 
                         onChange: (v) {
@@ -199,9 +201,9 @@ class _ClientsModalState extends State<ClientsModal> {
                       itemCount: _filteredClients.length,
                       itemBuilder: (context, index) => _ListItem(
                         title: _filteredClients[index].ip, 
-                        subtitle: _selectedList == 0 ? _filteredClients[index].name : _filteredClients[index].ids?.join(", "),
+                        subtitle: _selectedList == 1 ? _filteredClients[index].name : _filteredClients[index].ids?.join(", "),
                         checkboxActive: logsProvider.selectedClients.contains(_filteredClients[index].ip),
-                        isAddedClient: _selectedList == 0,
+                        isAddedClient: _selectedList == 1,
                         onSearchAddedClient: () => searchAddedClient(_filteredClients[index]),
                         onChanged: (isSelected) {
                           if (isSelected == true) {
@@ -241,31 +243,31 @@ class _ClientsModalState extends State<ClientsModal> {
               onClear: () => setState(() => _searchController.text = ""), 
               onSearch: (v) => onSearch(value: v)
             ),
-            Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.info_rounded,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 16),
-                    Flexible(
-                      child: Text(AppLocalizations.of(context)!.selectClientsFiltersInfo)
-                    )
-                  ],
-                ),
-              ),
-            ),
+            // Card(
+            //   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            //   child: Padding(
+            //     padding: const EdgeInsets.all(16),
+            //     child: Row(
+            //       children: [
+            //         Icon(
+            //           Icons.info_rounded,
+            //           color: Theme.of(context).colorScheme.onSurfaceVariant,
+            //         ),
+            //         const SizedBox(width: 16),
+            //         Flexible(
+            //           child: Text(AppLocalizations.of(context)!.selectClientsFiltersInfo)
+            //         )
+            //       ],
+            //     ),
+            //   ),
+            // ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: SegmentedButtonSlide(
                 entries: [
-                  SegmentedButtonSlideEntry(icon: Icons.devices, label: AppLocalizations.of(context)!.activeClients),
-                  SegmentedButtonSlideEntry(icon: Icons.add_rounded, label: AppLocalizations.of(context)!.added),
-                ], 
+                  SegmentedButtonSlideEntry(icon: Icons.devices, label: AppLocalizations.of(context)!.devices),
+                  SegmentedButtonSlideEntry(icon: Icons.devices_other, label: AppLocalizations.of(context)!.others),
+                ],
                 selectedEntry: _selectedList, 
                 onChange: (v) {
                   onListChange(v);
@@ -285,10 +287,10 @@ class _ClientsModalState extends State<ClientsModal> {
               primary: false,
               itemCount: _filteredClients.length,
               itemBuilder: (context, index) => _ListItem(
-                title: _selectedList == 0 ? _filteredClients[index].ip : _filteredClients[index].name ?? "", 
-                subtitle: _selectedList == 0 ? _filteredClients[index].name : _filteredClients[index].ids?.join(", "),
+                title: _selectedList == 1 ? _filteredClients[index].ip : _filteredClients[index].name ?? "",
+                subtitle: _selectedList == 1 ? _filteredClients[index].name : _filteredClients[index].ids?.join(", "),
                 checkboxActive: logsProvider.selectedClients.contains(_filteredClients[index].ip),
-                isAddedClient: _selectedList == 1,
+                isAddedClient: _selectedList == 0,
                 onSearchAddedClient: () => searchAddedClient(_filteredClients[index]),
                 onChanged: (isSelected) {
                   if (isSelected == true) {
@@ -380,25 +382,29 @@ class _ListItem extends StatelessWidget {
       return CustomListTile(
         title: title,
         subtitle: subtitle,
-        trailing: TextButton(
-          onPressed: onSearchAddedClient, 
-          child: Text(AppLocalizations.of(context)!.select)
-        ),
+        trailing: checkboxActive ? null : TextButton(
+            onPressed: onSearchAddedClient,
+            child: Text(AppLocalizations.of(context)!.select)
+        )
       );
     }
     else {
-      return CustomCheckboxListTile(
-        value: checkboxActive, 
-        onChanged: (v) => onChanged(v),
+      return CustomListTile(
         title: title,
         subtitle: subtitle,
-        padding: const EdgeInsets.only(
-          left: 24,
-          top: 8,
-          right: 12,
-          bottom: 8
-        ),
       );
+      // return CustomCheckboxListTile(
+      //   value: checkboxActive,
+      //   onChanged: (v) => onChanged(v),
+      //   title: title,
+      //   subtitle: subtitle,
+      //   padding: const EdgeInsets.only(
+      //     left: 24,
+      //     top: 8,
+      //     right: 12,
+      //     bottom: 8
+      //   ),
+      // );
     }
   }
 }

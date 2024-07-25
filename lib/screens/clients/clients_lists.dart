@@ -1,3 +1,4 @@
+import 'package:adguard_home_manager/providers/clients_wrapper_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -57,6 +58,7 @@ class _ClientsListsState extends State<ClientsLists> with TickerProviderStateMix
   Widget build(BuildContext context) {
     final serversProvider = Provider.of<ServersProvider>(context);
     final clientsProvider = Provider.of<ClientsProvider>(context);
+    final clientsWrapperProvider = Provider.of<ClientsWrapperProvider>(context);
     final appConfigProvider = Provider.of<AppConfigProvider>(context);
 
     void onAutoClientSelected(AutoClient client) {
@@ -219,7 +221,7 @@ class _ClientsListsState extends State<ClientsLists> with TickerProviderStateMix
             AddedList(
               scrollController: scrollController,
               data: clientsProvider.loadStatus == LoadStatus.loaded
-                  ? clientsProvider.filteredAddedClients : [],
+                  ? clientsWrapperProvider.sortClients(clientsProvider.filteredAddedClients) : Future.value([]),
               onClientSelected: onClientSelected,
               selectedClient: _selectedClient,
               splitView: widget.splitView,

@@ -15,6 +15,8 @@ import 'package:adguard_home_manager/constants/enums.dart';
 import 'package:adguard_home_manager/providers/clients_provider.dart';
 import 'package:adguard_home_manager/providers/logs_provider.dart';
 
+import '../../../config/logger.dart';
+
 class LogsFiltersModal extends StatelessWidget {
   final bool dialog;
 
@@ -131,6 +133,7 @@ class _FiltersList extends StatelessWidget {
       }
     }
 
+    logger.d("Build ${logsProvider.selectedClients}");
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -246,6 +249,7 @@ class _FiltersList extends StatelessWidget {
             children: [
               TextButton(
                 onPressed: () {
+                  Navigator.pop(context);
                   logsProvider.requestResetFilters();
                 }, 
                 child: Text(AppLocalizations.of(context)!.resetFilters)

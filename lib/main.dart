@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:adguard_home_manager/providers/clients_wrapper_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -59,11 +60,12 @@ void main() async {
   final ServersProvider serversProvider = ServersProvider();
   final StatusProvider statusProvider = StatusProvider();
   final ClientsProvider clientsProvider = ClientsProvider();
+  final LogsProvider logsProvider = LogsProvider();
+  final ClientsWrapperProvider clientsWrapperProvider = ClientsWrapperProvider(logsProvider);
   final FilteringProvider filtersProvider = FilteringProvider();
   final DhcpProvider dhcpProvider = DhcpProvider();
   final RewriteRulesProvider rewriteRulesProvider = RewriteRulesProvider();
   final DnsProvider dnsProvider = DnsProvider();
-  final LogsProvider logsProvider = LogsProvider();
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   if (Platform.isAndroid) {
@@ -107,6 +109,9 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: ((context) => clientsProvider)
+        ),
+        ChangeNotifierProvider(
+            create: ((context) => clientsWrapperProvider)
         ),
         ChangeNotifierProvider(
           create: ((context) => logsProvider)
